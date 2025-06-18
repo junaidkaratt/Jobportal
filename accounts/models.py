@@ -28,9 +28,9 @@ class User(AbstractUser):
     objects= CustomUserManager()
 
     def __str__(self):
-        return f"{self.fullname} ({self.get_role_display()})"
+        return f"{self.email} ({self.get_roles_display()})"
     
 
 
 
-# Create your models here.
+# Create your models her
