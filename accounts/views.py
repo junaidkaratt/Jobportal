@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import userregister,LoginSerializer
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken 
 
 
 class RegisterUserView(APIView):
@@ -33,4 +34,19 @@ class ProtectedUserView(APIView):
 
     def get(self,request):
         return Response({"successfully authorised"})
+
+class logoutUserView(APIView):
+    permission_classes= [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh= request.data["refresh"]
+            token= RefreshToken(refresh)
+            token.blacklist()
+        
+            return Response({"message": "Successfully logged out"}, status=status.HTTP_205_RESET_CONTENT)
+        except KeyError:
+            return Response({"error": "Refresh token required"}, status=status.HTTP_400_BAD_REQUEST)
+        except TokenError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
