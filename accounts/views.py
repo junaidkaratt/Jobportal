@@ -2,10 +2,13 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import userregister,LoginSerializer
+from .serializers import userregister,LoginSerializer, jobSeekerprofileSerializer, employerprofileSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken 
+from .models import jobSeekerProfileModel, employerProfileModel
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+
 
 
 class RegisterUserView(APIView):
@@ -16,6 +19,8 @@ class RegisterUserView(APIView):
             return Response({"message":"user created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
 class loginUserView(APIView):
    def post(self,request):
        serializer= LoginSerializer(data=request.data)
@@ -28,12 +33,15 @@ class loginUserView(APIView):
            },status=status.HTTP_200_OK)
        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
+
         
 class ProtectedUserView(APIView):
     permission_classes= [IsAuthenticated]
 
     def get(self,request):
         return Response({"successfully authorised"})
+
+
 
 class logoutUserView(APIView):
     permission_classes= [IsAuthenticated]
@@ -50,3 +58,18 @@ class logoutUserView(APIView):
         except TokenError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+class JobSeekerProfileView(RetrieveUpdateAPIView):
+    serializer_class = jobSeekerprofileSerializer
+
+    def get_object(self):
+        return jobSeekerProfileModel.objects.get_or_create(user=self.request.user)[0]
+
+
+
+class EmployerProfileView(RetrieveUpdateAPIView):
+    serializer_class = employerprofileSerializer
+
+    def get_object(self):
+        return employerProfileModel.objects.get_or_create(user=self.request.user)[0]

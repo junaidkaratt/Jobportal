@@ -31,6 +31,24 @@ class User(AbstractUser):
         return f"{self.email} ({self.get_roles_display()})"
     
 
+class jobSeekerProfileModel(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    resume = models.FileField(upload_to='resume/', null=True)
+    skills = models.TextField(blank=True, null=True)
+    experience = models.PositiveIntegerField(default=0)
+    education = models.TextField(blank=True, null=True)
+    is_deleted= models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"jobseekerProfile: {self.user.email}"
 
-# Create your models her
+class employerProfileModel(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    company_name = models.CharField(max_length=255, null=True)
+    company_website = models.URLField(blank=True, null=True)
+    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    description =  models.TextField(blank=True, null=True)
+    is_deleted= models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"employerProfile: {self.user.email}"
